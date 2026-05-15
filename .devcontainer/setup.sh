@@ -23,9 +23,9 @@ echo "============================================================"
 echo ""
 
 # ============================================================
-# 0. CONFIGURAR POSTGRESQL PARA AUTENTICACAO INTEGRADA
+# 0. CONFIGURAR POSTGRESQL — helpers usam sudo -u postgres
 # ============================================================
-echo "[0/4] Configurando PostgreSQL para autenticacao integrada..."
+echo "[0/4] Configurando PostgreSQL para autenticacao via socket Unix..."
 
 # Aguardar PostgreSQL estar pronto
 MAX_RETRIES=30
@@ -45,29 +45,7 @@ for ((i=1; i<=$MAX_RETRIES; i++)); do
   sleep $RETRY_DELAY
 done
 
-# Conectar ao PostgreSQL e criar usuario vscode como superuser
-echo "  Criando usuario vscode como superuser no PostgreSQL..."
-psql -h localhost -p 5432 -U postgres -d postgres -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'vscode') THEN CREATE ROLE vscode WITH LOGIN SUPERUSER; END IF; END \$\$;" 2>/dev/null
-
-# Criar banco de dados vscode
-echo "  Criando banco de dados vscode..."
-psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE DATABASE vscode;" 2>/dev/null || true
-
-# Configurar variaveis de ambiente para psql do usuario vscode
-echo "  Configurando ambiente para psql..."
-if ! grep -q "export PGUSER=vscode" "$HOME/.bashrc" 2>/dev/null; then
-  cat >> "$HOME/.bashrc" << 'EOF'
-
-# PostgreSQL - Autenticacao integrada para usuario vscode
-export PGUSER=vscode
-export PGDATABASE=vscode
-export PGHOST=localhost
-export PGPORT=5432
-EOF
-  echo "  Variaveis de ambiente configuradas em ~/.bashrc"
-fi
-
-echo "  PostgreSQL configurado para usuario vscode!"
+echo "  PostgreSQL pronto — helpers dhbb-sql-query/dhbb-sql-test usam sudo -u postgres"
 echo ""
 
 # ============================================================

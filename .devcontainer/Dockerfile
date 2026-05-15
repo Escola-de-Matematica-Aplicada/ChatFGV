@@ -119,11 +119,13 @@ ENV PATH="/home/vscode/.local/bin:$PATH" \
 USER root
 
 # Adicionar helpers CLI para consultas SQL (testar conexao, rodar queries)
+# Usam sudo -u postgres para autenticacao integrada via socket Unix
+# (pg_hba.conf configurado com trust para conexoes locais)
 # t: /usr/local/bin/dhbb-sql-test
 # t: /usr/local/bin/dhbb-sql-query
-RUN echo '#!/bin/bash\nset -e\nDB_HOST=${PGHOST:-localhost}\nDB_PORT=${PGPORT:-5432}\nDB_NAME=${PGDATABASE:-postgres}\nDB_USER=${PGUSER:-postgres}\nDB_PASS=${PGPASSWORD:-postgres}\nexport PGPASSWORD=$DB_PASS\npsql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$@"' > /usr/local/bin/dhbb-sql-query && \
+RUN printf '#!/bin/bash\nset -e\nsudo -u postgres psql -c "$@"\n' > /usr/local/bin/dhbb-sql-query && \
     chmod +x /usr/local/bin/dhbb-sql-query && \
-    echo '#!/bin/bash\nset -e\nDB_HOST=${PGHOST:-localhost}\nDB_PORT=${PGPORT:-5432}\nDB_NAME=${PGDATABASE:-postgres}\nDB_USER=${PGUSER:-postgres}\nDB_PASS=${PGPASSWORD:-postgres}\nexport PGPASSWORD=$DB_PASS\npsql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1 as ok;"' > /usr/local/bin/dhbb-sql-test && \
+    printf '#!/bin/bash\nset -e\nsudo -u postgres psql -c "SELECT 1 as ok;"\n' > /usr/local/bin/dhbb-sql-test && \
     chmod +x /usr/local/bin/dhbb-sql-test
 
 # Switch back to vscode user

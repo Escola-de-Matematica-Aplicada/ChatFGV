@@ -29,7 +29,8 @@ This system uses a **hybrid architecture**:
 - **Two-stage agent system**: Similar to the main architecture but for SQL
   1. **Agent 1**: Receives user prompt + database schema → generates SQL query
   2. **Agent 2**: Executes query, receives results + original prompt → generates final answer
-- **Connection details**: Host: `localhost`, Port: `5432`, Database: `postgres`, User: `postgres`, Password: `postgres`
+- **Connection details**: Run `psql` like the exemplified below.
+  - `sudo -u postgres psql -c "SQL_COMMAND;"`
 
 ## How to Answer DHBB Questions
 
@@ -101,7 +102,7 @@ dhbb-sql-query "SELECT * FROM autoridades WHERE cargo LIKE 'Presidente%';"
 
 **Or connect interactively:**
 ```bash
-psql "host=localhost port=5432 dbname=postgres user=postgres password=postgres"
+sudo -u postgres psql
 ```
 
 Note: The PostgreSQL instance is available but the DHBB schema must be loaded first (contact the system administrator for schema details).
@@ -160,7 +161,7 @@ cd /workspaces/ChatFGV && python3 dhbb-query.py --build-index
 - **Embeddings not installed**: The Python packages `sentence-transformers` and `faiss-cpu` must be available. The model `PORTULAN/serafim-900m-portuguese-pt-sentence-encoder-ir` is loaded via HuggingFace.
 - **Slow search**: Try reducing `--top-k` to 1 for faster results, or check PostgreSQL connection for analytical queries.
 - **Empty results**: Try rephrasing the query or increasing `--top-k` to 3 or 5
-- **PostgreSQL connection issues**: Verify service is running with `dhbb-sql-test` and check credentials in `.devcontainer/devcontainer.json`
+- **PostgreSQL connection issues**: Verify service is running with `dhbb-sql-test`; if it fails, start the service with `sudo service postgresql start` and retry. The helper uses `sudo -u postgres` via socket Unix (trust auth)
 
 ## Important Notes
 

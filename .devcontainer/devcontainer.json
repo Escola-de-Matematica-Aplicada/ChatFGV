@@ -60,12 +60,7 @@
   "remoteEnv": {
     "R_LIBS_USER": "/home/vscode/R/library",
     "CHATFGV_INDEX": "/workspaces/ChatFGV/faiss_index",
-    "CHATFGV_DHBB": "/workspaces/ChatFGV/DHBB/text",
-    "PGHOST": "localhost",
-    "PGPORT": "5432",
-    "PGDATABASE": "postgres",
-    "PGUSER": "postgres",
-    "PGPASSWORD": "postgres"
+    "CHATFGV_DHBB": "/workspaces/ChatFGV/DHBB/text"
   },
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "hostRequirements": {
