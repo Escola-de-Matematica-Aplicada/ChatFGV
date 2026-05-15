@@ -31,6 +31,8 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     dirmngr \
     procps \
+    openrc \
+    postgresql \
     postgresql-client \
     && git lfs install \
     && rm -rf /var/lib/apt/lists/*

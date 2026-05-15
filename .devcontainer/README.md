@@ -148,3 +148,74 @@ Resumo do Progresso — Preparação do .devcontainer com Índice FAISS Pré-con
       ```
 
       Se `git lfs pull` retornar erro "LFS is not installed", instale primeiro com `git lfs install`.
+
+
+🔧 Configuração de Autenticação Integrada PostgreSQL
+
+Para permitir que o usuário `vscode` (login Linux do Codespaces) acesse o PostgreSQL **sem senha**, foi implementada autenticação integrada via `peer/trust`. Isso permite que o usuário digite apenas `psql` no terminal e entre diretamente no banco de dados.
+
+**Arquivos modificados/criados:**
+
+1. **`.devcontainer/pg_hba.conf`** (NOVO)
+   - Arquivo de configuração de autenticação do PostgreSQL
+   - Configura `trust` para todas as conexões locais (local, 127.0.0.1, ::1)
+   - Permite que qualquer usuário do sistema operacional se conecte ao PostgreSQL sem senha
+
+2. **`.devcontainer/devcontainer.json`** (MODIFICADO)
+   - Adicionado volume para montar o `pg_hba.conf` customizado no container do PostgreSQL:
+   ```json
+   "volumes": ["./.devcontainer/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf:ro"]
+   ```
+   - O PostgreSQL inicia com a configuração de autenticação trust
+
+3. **`.devcontainer/setup.sh`** (MODIFICADO)
+   - Adicionada seção `[0/4]` no início do script que:
+     - Aguarda o PostgreSQL estar pronto (até 30 tentativas com 2 segundos de intervalo)
+     - Cria o usuário `vscode` como superuser no PostgreSQL:
+       ```sql
+       CREATE ROLE vscode WITH LOGIN SUPERUSER;
+       ```
+     - Cria o banco de dados `vscode`:
+       ```sql
+       CREATE DATABASE vscode;
+       ```
+     - Configura variáveis de ambiente no `~/.bashrc`:
+       ```bash
+       export PGUSER=vscode
+       export PGDATABASE=vscode
+       export PGHOST=localhost
+       export PGPORT=5432
+       ```
+
+**Fluxo de funcionamento:**
+
+1. O Codespaces inicia o container principal e o serviço PostgreSQL
+2. O pg_hba.conf customizado é montado no container do PostgreSQL via volume
+3. O PostgreSQL inicia com autenticação `trust` ativa
+4. O `setup.sh` é executado (postCreateCommand) e:
+   - Aguarda o PostgreSQL estar disponível
+   - Cria o usuário `vscode` e o banco `vscode` usando o usuário `postgres` (que tem acesso via trust)
+   - Configura as variáveis de ambiente no `.bashrc` do usuário `vscode`
+5. Ao abrir um novo terminal, as variáveis estão definidas
+6. Digitando `psql`, o cliente usa:
+   - Usuário: `vscode` (de PGUSER)
+   - Banco: `vscode` (de PGDATABASE)
+   - Host: `localhost` (de PGHOST)
+   - Porta: `5432` (de PGPORT)
+   - Autenticação: `trust` (configurado no pg_hba.conf)
+7. Conexão estabelecida **sem solicitar senha**
+
+**Teste:**
+```bash
+# Após o Codespaces estar pronto, abra um terminal e digite:
+psql
+
+# Deve entrar diretamente no PostgreSQL como usuário vscode
+# com o banco vscode selecionado
+```
+
+**Observações de segurança:**
+- Essa configuração usa `trust` apenas para conexões locais (127.0.0.1)
+- O ambiente Codespaces já é isolado por padrão
+- Não adequado para ambientes de produção abertos à rede
+- Para reverter, remova o volume do pg_hba.conf no devcontainer.json
