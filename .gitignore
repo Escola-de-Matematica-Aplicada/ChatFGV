@@ -1,0 +1,30 @@
+# Julius Code - API tokens (never commit this file!)
+*TOKENS
+artigo/julius_20260311_140441.md
+artigo/julius_20260311_135956.md
+
+/.idea
+__pycache__
+
+# RAG results and test outputs
+results/
+results_rag_gpu/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Data directories (large files)
+/disco/
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.txss2
+quickstart.pdf

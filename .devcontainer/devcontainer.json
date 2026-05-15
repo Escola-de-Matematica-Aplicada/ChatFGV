@@ -1,0 +1,58 @@
+{
+  "name": "ChatFGV - RAG + Copilot Code (DHBB)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "analytic-signal.preview-pdf"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "jupyter.notebookFileRoot": "${workspaceFolder}",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    },
+    "codespaces": {
+      "openFiles": [
+        "WELCOME.md"
+      ]
+    }
+  },
+  "forwardPorts": [8501, 8888],
+  "portsAttributes": {
+    "8501": {
+      "label": "ChatFGV Streamlit",
+      "onAutoForward": "notify"
+    },
+    "8888": {
+      "label": "Jupyter",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "vscode",
+  "remoteEnv": {
+    "R_LIBS_USER": "/home/vscode/R/library",
+    "CHATFGV_INDEX": "/workspaces/ChatFGV/faiss_index",
+    "CHATFGV_DHBB": "/workspaces/ChatFGV/DHBB/text"
+  },
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "16gb"
+  }
+}
