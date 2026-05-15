@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM rocker/r-ver:4.4.2
 
 # ============================================================
 # ChatFGV - Imagem GitHub Codespaces com RAG + PostgreSQL + Copilot
@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y \
     procps \
     openrc \
     postgresql \
-    postgresql-client \
+    postgresql-contrib \
     && git lfs install \
     && rm -rf /var/lib/apt/lists/*
 
@@ -86,10 +86,6 @@ RUN sed -i 's/# pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen && \
     update-locale LANG=pt_BR.UTF-8
 
-# Pacotes R
-RUN R -e "install.packages(c('IRkernel', 'languageserver'), repos='https://cloud.r-project.org', Ncpus=2)" && \
-    R -e "IRkernel::installspec(user = FALSE)"
-
 # Criar usuario vscode (compativel com Codespaces)
 RUN useradd -m -s /bin/bash vscode && \
     usermod -aG sudo vscode && \
@@ -103,9 +99,8 @@ RUN useradd -m -s /bin/bash vscode && \
 COPY DHBB/ /workspaces/ChatFGV/DHBB/
 COPY dhbb-query.py /workspaces/ChatFGV/dhbb-query.py
 
-# Criar diretorios e dar permissoes
-RUN mkdir -p /workspaces/ChatFGV/faiss_index && \
-    chown -R vscode:vscode /workspaces/ChatFGV
+# dar permissoes
+RUN chown -R vscode:vscode /workspaces/ChatFGV
 
 # Configurar diretorio de trabalho
 WORKDIR /workspaces
