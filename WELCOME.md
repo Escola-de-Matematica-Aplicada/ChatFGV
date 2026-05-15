@@ -4,10 +4,12 @@ Este ambiente permite que voce faca perguntas ao **Dicionario Historico-Biografi
 
 ## Primeiro Acesso
 
-Ao abrir o Codespaces pela primeira vez, o ambiente leva **30-60 minutos** para ficar pronto, devido ao tempo de vetorização com o modelo Serafim (otimizado para portugues). O script de instalacao faz o seguinte automaticamente:
+Ao abrir o Codespaces pela primeira vez, o ambiente leva **~10 minutos** para ficar pronto.
+O tempo de vetorização com o modelo Serafim (otimizado para portugues) foi economizado, pois o índice já está salvo no repositório.
+O script de instalacao faz o seguinte automaticamente:
 
-1. Constroi o indice FAISS dos 7.863 verbetes do DHBB (~30-60 min com Serafim)
-2. Configura atalhos e extensoes
+1. Instala pacotes necessários para operacionalizar o RAG (leitura de bases de dados não estruturadas)
+2. Instala pacotes necessários para operar com o postgres (leitura de bases de dados estruturadas)
 
 Aguarde ate ver a mensagem **"ChatFGV - Ambiente Pronto!"** no terminal.
 
@@ -45,16 +47,6 @@ Isso é útil para entender o que o sistema esta buscando e como as respostas sa
 ```bash
   python3 dhbb-query.py --check
 ```
-
-### Metodo 3: Interface Web (Streamlit)
-
-No terminal, execute:
-
-```bash
-chatfgv-streamlit
-```
-
-Depois acesse a porta 8501 no navegador (Codespaces faz o encaminhamento automatico).
 
 ## Status do Sistema
 
@@ -101,6 +93,7 @@ Este ambiente utiliza:
 ```bash
 cd /workspaces/ChatFGV && python3 dhbb-query.py --build-index
 ```
+Alerta: no ambiente do codespaces a reconstrução do índice FAISS não vai funcionar porque não tem GPU.
 
 **Verificar status completo:**
 ```bash

@@ -1,0 +1,10 @@
+{
+  "status": "ready",
+  "faiss_index": "/workspaces/ChatFGV/faiss_index",
+  "dhbb_texts": "/workspaces/ChatFGV/DHBB/text",
+  "cli_script": "/workspaces/ChatFGV/dhbb-query.py",
+  "embedding_model": "PORTULAN/serafim-900m-portuguese-pt-sentence-encoder-ir",
+  "streamlit_port": 8501,
+  "generation": "GitHub Copilot Chat (sem LLM local)",
+  "setup_completed_at": "2026-05-15T20:42:50Z"
+}
