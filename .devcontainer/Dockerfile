@@ -31,7 +31,6 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     dirmngr \
     procps \
-    openrc \
     postgresql \
     postgresql-contrib \
     && git lfs install \
