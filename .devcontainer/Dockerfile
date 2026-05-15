@@ -115,6 +115,9 @@ ENV PATH="/home/vscode/.local/bin:$PATH" \
     CHATFGV_INDEX="/workspaces/ChatFGV/faiss_index" \
     CHATFGV_DHBB="/workspaces/ChatFGV/DHBB/text"
 
+# Switch back to root to install scripts to /usr/local/bin
+USER root
+
 # Adicionar helpers CLI para consultas SQL (testar conexao, rodar queries)
 # t: /usr/local/bin/dhbb-sql-test
 # t: /usr/local/bin/dhbb-sql-query
@@ -122,3 +125,6 @@ RUN echo '#!/bin/bash\nset -e\nDB_HOST=${PGHOST:-localhost}\nDB_PORT=${PGPORT:-5
     chmod +x /usr/local/bin/dhbb-sql-query && \
     echo '#!/bin/bash\nset -e\nDB_HOST=${PGHOST:-localhost}\nDB_PORT=${PGPORT:-5432}\nDB_NAME=${PGDATABASE:-postgres}\nDB_USER=${PGUSER:-postgres}\nDB_PASS=${PGPASSWORD:-postgres}\nexport PGPASSWORD=$DB_PASS\npsql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1 as ok;"' > /usr/local/bin/dhbb-sql-test && \
     chmod +x /usr/local/bin/dhbb-sql-test
+
+# Switch back to vscode user
+USER vscode
