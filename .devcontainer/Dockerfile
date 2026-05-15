@@ -97,8 +97,8 @@ RUN useradd -m -s /bin/bash vscode && \
 # COPIAR ARQUIVOS DO PROJETO
 # ============================================================
 # O indice FAISS e construido no setup.sh (postCreateCommand).
+# Caminhos ajustados ao contexto do repositório
 COPY DHBB/ /workspaces/ChatFGV/DHBB/
-COPY RAG-streamlit-api/ /workspaces/ChatFGV/RAG-streamlit-api/
 COPY dhbb-query.py /workspaces/ChatFGV/dhbb-query.py
 
 # Criar diretorios e dar permissoes
