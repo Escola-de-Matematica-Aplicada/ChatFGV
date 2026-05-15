@@ -1,12 +1,12 @@
-FROM rocker/r-ver:4.4.2
+FROM python:3.11-slim
 
 # ============================================================
-# ChatFGV - Imagem GitHub Codespaces com RAG + Copilot Code
+# ChatFGV - Imagem GitHub Codespaces com RAG + PostgreSQL + Copilot
 # ============================================================
 # Imagem otimizada para build rapido no Codespaces.
 # O indice FAISS e construido no setup.sh (postCreateCommand).
-# NAO ha Ollama ou LLM local - a geracao de respostas e
-# feita pelo proprio GitHub Copilot Chat.
+# PostgreSQL é iniciado automaticamente no Codespaces.
+# Consultas SQL podem ser executadas via CLI/API para testes.
 # ============================================================
 
 # Instalar dependencias do sistema
@@ -31,8 +31,16 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     dirmngr \
     procps \
+    postgresql-client \
     && git lfs install \
     && rm -rf /var/lib/apt/lists/*
+
+#    postgresql \
+
+
+# Iniciar servico PostgreSQL no container (para uso local, se precisar)
+# No Codespaces, o servico sera iniciado via 'services-start' conforme devcontainer.json
+# RUN service postgresql start 2>/dev/null || true
 
 # Criar link simbolico para python
 RUN ln -sf /usr/bin/python3 /usr/local/bin/python
@@ -67,7 +75,9 @@ RUN pip3 install --no-cache-dir --break-system-packages \
     httpx \
     rich \
     pyarrow \
-    polars
+    polars \
+    psycopg2-binary \
+    sqlalchemy
 
 # Locale pt_BR
 RUN sed -i 's/# pt_BR.UTF-8 UTF-8/pt_BR.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -108,3 +118,11 @@ ENV PATH="/home/vscode/.local/bin:$PATH" \
     LC_ALL=pt_BR.UTF-8 \
     CHATFGV_INDEX="/workspaces/ChatFGV/faiss_index" \
     CHATFGV_DHBB="/workspaces/ChatFGV/DHBB/text"
+
+# Adicionar helpers CLI para consultas SQL (testar conexao, rodar queries)
+# t: /usr/local/bin/dhbb-sql-test
+# t: /usr/local/bin/dhbb-sql-query
+RUN echo '#!/bin/bash\nset -e\nDB_HOST=${PGHOST:-localhost}\nDB_PORT=${PGPORT:-5432}\nDB_NAME=${PGDATABASE:-postgres}\nDB_USER=${PGUSER:-postgres}\nDB_PASS=${PGPASSWORD:-postgres}\nexport PGPASSWORD=$DB_PASS\npsql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "$@"' > /usr/local/bin/dhbb-sql-query && \
+    chmod +x /usr/local/bin/dhbb-sql-query && \
+    echo '#!/bin/bash\nset -e\nDB_HOST=${PGHOST:-localhost}\nDB_PORT=${PGPORT:-5432}\nDB_NAME=${PGDATABASE:-postgres}\nDB_USER=${PGUSER:-postgres}\nDB_PASS=${PGPASSWORD:-postgres}\nexport PGPASSWORD=$DB_PASS\npsql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1 as ok;"' > /usr/local/bin/dhbb-sql-test && \
+    chmod +x /usr/local/bin/dhbb-sql-test

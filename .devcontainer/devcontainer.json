@@ -1,5 +1,5 @@
 {
-  "name": "ChatFGV - RAG + Copilot Code (DHBB)",
+  "name": "ChatFGV - RAG + PostgreSQL + Copilot Code (DHBB)",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
@@ -7,6 +7,18 @@
   "features": {
     "ghcr.io/devcontainers/features/sshd:1": {
       "version": "latest"
+    }
+  },
+  "services": {
+    "postgres": {
+      "image": "postgres:16",
+      "environment": {
+        "POSTGRES_DB": "postgres",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": "postgres"
+      },
+      "ports": ["5432:5432"],
+      "options": "--health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=5"
     }
   },
   "customizations": {
@@ -47,7 +59,12 @@
   "remoteEnv": {
     "R_LIBS_USER": "/home/vscode/R/library",
     "CHATFGV_INDEX": "/workspaces/ChatFGV/faiss_index",
-    "CHATFGV_DHBB": "/workspaces/ChatFGV/DHBB/text"
+    "CHATFGV_DHBB": "/workspaces/ChatFGV/DHBB/text",
+    "PGHOST": "localhost",
+    "PGPORT": "5432",
+    "PGDATABASE": "postgres",
+    "PGUSER": "postgres",
+    "PGPASSWORD": "postgres"
   },
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "hostRequirements": {
