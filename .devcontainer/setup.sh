@@ -2,7 +2,7 @@
 set -uo pipefail
 
 # ============================================================
-# ChatFGV - Post-Create Setup para GitHub Codespaces
+# Pergunte aos Dados - Post-Create Setup para GitHub Codespaces
 # ============================================================
 # Este script e executado automaticamente apos a criacao do
 # container. Constroi o indice FAISS do DHBB e configura
@@ -13,12 +13,12 @@ set -uo pipefail
 # ============================================================
 
 # Log file for debugging setup failures
-SETUP_LOG="/workspaces/ChatFGV/.setup.log"
+SETUP_LOG="/workspaces/pergunta-aos-dados/.setup.log"
 exec > >(tee -a "$SETUP_LOG") 2>&1
 
 echo ""
 echo "============================================================"
-echo "  ChatFGV - Configurando ambiente RAG para DHBB"
+echo "  Pergunte aos Dados - Configurando ambiente RAG para DHBB"
 echo "============================================================"
 echo ""
 
@@ -26,7 +26,7 @@ echo ""
 # 0.5. BAIXAR ARQUIVOS LFS (indice FAISS, etc.)
 # ============================================================
 echo "[0.5/4] Baixando arquivos Git LFS..."
-cd /workspaces/ChatFGV
+cd /workspaces/pergunta-aos-dados
 if git lfs pull 2>&1; then
   echo "  Arquivos LFS baixados com sucesso!"
 else
@@ -63,13 +63,34 @@ echo "  PostgreSQL pronto — helpers dhbb-sql-query/dhbb-sql-test usam sudo -u 
 echo ""
 
 # ============================================================
+# 0.6. IMPORTAR DADOS ESTRUTURADOS NO POSTGRESQL
+# ============================================================
+echo "[0.6/4] Importando dados estruturados no PostgreSQL..."
+
+if pg_isready -h localhost -p 5432 -U postgres >/dev/null 2>&1; then
+  echo "  PostgreSQL acessivel — importando dados..."
+
+  # Criar tabelas e importar dados
+  cd /workspaces/pergunta-aos-dados
+
+  if PYTHONUNBUFFERED=1 python3 Bases-de-Dados/importar_dados.py 2>&1; then
+    echo "  Dados estruturados importados com sucesso!"
+  else
+    echo "  AVISO: Falha ao importar dados estruturados (pode ser necessario configurar o PostgreSQL)"
+  fi
+else
+  echo "  PostgreSQL ainda nao pronto — pulando importacao de dados estruturados"
+fi
+echo ""
+
+# ============================================================
 # 1. CONSTRUIR INDICE FAISS
 # ============================================================
 echo "[1/4] Construindo indice FAISS do DHBB..."
 
-INDEX_PATH="${CHATFGV_INDEX:-/workspaces/ChatFGV/faiss_index}"
-DHBB_PATH="${CHATFGV_DHBB:-/workspaces/ChatFGV/DHBB/text}"
-CLI_SCRIPT="/workspaces/ChatFGV/dhbb-query.py"
+INDEX_PATH="${PERGUNTE_AOS_DADOS_INDEX:-/workspaces/pergunta-aos-dados/faiss_index}"
+DHBB_PATH="${PERGUNTE_AOS_DADOS_DHBB:-/workspaces/pergunta-aos-dados/DHBB/text}"
+CLI_SCRIPT="/workspaces/pergunta-aos-dados/dhbb-query.py"
 
 if [ -d "$INDEX_PATH" ] && [ -f "$INDEX_PATH/index.faiss" ]; then
   echo "  Indice FAISS ja existe em: $INDEX_PATH"
@@ -79,7 +100,7 @@ else
   echo "  Construindo indice com Serafim (pode levar 30-60 minutos ou nunca acabar, por isso)..."
   echo "  Verbetes: $(ls "$DHBB_PATH"/*.text 2>/dev/null | wc -l) arquivos"
 
-  cd /workspaces/ChatFGV
+  cd /workspaces/pergunta-aos-dados
 
   # Run with unbuffered output so logs are visible in real-time
   if PYTHONUNBUFFERED=1 python3 dhbb-query.py --build-index 2>&1; then
@@ -124,17 +145,18 @@ if ! grep -q "alias dhbb=" "$HOME/.bashrc" 2>/dev/null; then
   cat >> "$HOME/.bashrc" << 'EOF'
 
 # ============================================================
-# ChatFGV - Aliases para consulta rapida ao DHBB
+# Pergunte aos Dados - Aliases para consulta rapida ao DHBB e dados estruturados
 # ============================================================
-alias dhbb='python3 /workspaces/ChatFGV/dhbb-query.py'
-alias chatfgv-streamlit='cd /workspaces/ChatFGV/RAG-streamlit-api && streamlit run app.py'
-alias chatfgv-status='echo "=== FAISS ===" && (ls -la /workspaces/ChatFGV/faiss_index/ 2>/dev/null || echo "Indice nao encontrado") && echo "" && python3 /workspaces/ChatFGV/dhbb-query.py --check'
+alias dhbb='python3 /workspaces/pergunta-aos-dados/dhbb-query.py'
+alias dhbb-structured='python3 /workspaces/pergunta-aos-dados/structured-query.py'
+alias pergunteaosdados-streamlit='cd /workspaces/pergunta-aos-dados/RAG-streamlit-api && streamlit run app.py'
+alias chatfgv-status='echo "=== FAISS ===" && (ls -la /workspaces/pergunta-aos-dados/faiss_index/ 2>/dev/null || echo "Indice nao encontrado") && echo "" && python3 /workspaces/pergunta-aos-dados/dhbb-query.py --check'
 EOF
-  echo "  Aliases adicionados: dhbb, chatfgv-streamlit, chatfgv-status"
+  echo "  Aliases adicionados: dhbb, dhbb-structured, pergunteaosdados-streamlit, chatfgv-status"
 fi
 
 # Criar arquivo de status para Copilot Code
-cat > /workspaces/ChatFGV/.chatfgv-status << EOF
+cat > /workspaces/pergunta-aos-dados/.perguntaaosdados-status << EOF
 {
   "status": "ready",
   "faiss_index": "$INDEX_PATH",
@@ -149,7 +171,7 @@ EOF
 
 echo ""
 echo "============================================================"
-echo "  ChatFGV - Ambiente Pronto!"
+echo "  Pergunte aos Dados - Ambiente Pronto!"
 echo "============================================================"
 echo ""
 echo "  Para fazer perguntas ao DHBB:"
@@ -164,7 +186,7 @@ echo "    dhbb 'Quem foi Getulio Vargas?'"
 echo "    dhbb --json 'Quem foi Getulio Vargas?'"
 echo ""
 echo "  Via interface web (Streamlit):"
-echo "    chatfgv-streamlit"
+echo "    pergunteaosdados-streamlit"
 echo "    Acesse a porta 8501 no browser"
 echo ""
 echo "  Verificar status:"

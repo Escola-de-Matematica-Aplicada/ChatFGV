@@ -1,7 +1,7 @@
 FROM rocker/r-ver:4.4.2
 
 # ============================================================
-# ChatFGV - Imagem GitHub Codespaces com RAG + PostgreSQL + Copilot
+# Pergunte aos Dados - Imagem GitHub Codespaces com RAG + PostgreSQL + Copilot
 # ============================================================
 # Imagem otimizada para build rapido no Codespaces.
 # O indice FAISS e construido no setup.sh (postCreateCommand).
@@ -92,14 +92,16 @@ RUN useradd -m -s /bin/bash vscode && \
 
 # ============================================================
 # COPIAR ARQUIVOS DO PROJETO
-# ============================================================
+# COPIAR ARQUIVOS DO PROJETO
 # O indice FAISS e construido no setup.sh (postCreateCommand).
 # Caminhos ajustados ao contexto do repositório
-COPY DHBB/ /workspaces/ChatFGV/DHBB/
-COPY dhbb-query.py /workspaces/ChatFGV/dhbb-query.py
+COPY DHBB/ /workspaces/pergunta-aos-dados/DHBB/
+COPY dhbb-query.py /workspaces/pergunta-aos-dados/dhbb-query.py
+COPY structured-query.py /workspaces/pergunta-aos-dados/structured-query.py
+COPY Bases-de-Dados/ /workspaces/pergunta-aos-dados/Bases-de-Dados/
 
 # dar permissoes
-RUN chown -R vscode:vscode /workspaces/ChatFGV
+RUN chown -R vscode:vscode /workspaces/pergunta-aos-dados
 
 # Configurar diretorio de trabalho
 WORKDIR /workspaces
@@ -112,8 +114,8 @@ ENV PATH="/home/vscode/.local/bin:$PATH" \
     LANG=pt_BR.UTF-8 \
     LANGUAGE=pt_BR:pt:en_US:en \
     LC_ALL=pt_BR.UTF-8 \
-    CHATFGV_INDEX="/workspaces/ChatFGV/faiss_index" \
-    CHATFGV_DHBB="/workspaces/ChatFGV/DHBB/text"
+    PERGUNTE_AOS_DADOS_INDEX="/workspaces/pergunta-aos-dados/faiss_index" \
+     PERGUNTE_AOS_DADOS_DHBB="/workspaces/pergunta-aos-dados/DHBB/text"
 
 # Switch back to root to install scripts to /usr/local/bin
 USER root

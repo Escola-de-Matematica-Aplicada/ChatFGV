@@ -1,4 +1,4 @@
-# ChatFGV
+# Pergunte aos Dados
 Hackathon de pergunta aos dados via LLM.
 
 ## Objetivo
@@ -6,7 +6,7 @@ Responder perguntas sobre os verbetes do DHBB num chat privado da FGV no Teams.
 
 ## Project Overview
 
-**ChatFGV** is a RAG-based hackathon project that implements a question-answering system over the DHBB (Dicionário Histórico-Biográfico Brasileiro – Brazilian Historical-Biographical Dictionary) dataset. The project is currently in the article publication phase for a scientific journal (H2D – Digital Humanities).
+**Pergunte aos Dados** is a RAG-based hackathon project that implements a question-answering system over the DHBB (Dicionário Histórico-Biográfico Brasileiro – Brazilian Historical-Biographical Dictionary) dataset. The project is currently in the article publication phase for a scientific journal (H2D – Digital Humanities).
 
 **Key goal**: Enable users to query historical biographical data via natural language through an LLM-powered chat interface.
 

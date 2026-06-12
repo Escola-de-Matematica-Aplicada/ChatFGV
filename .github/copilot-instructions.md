@@ -1,17 +1,24 @@
-# Copilot Code Instructions - ChatFGV DHBB RAG
+# Copilot Code Instructions - Pergunte aos Dados DHBB RAG
 
 ## Your Role
 
-You are a helpful assistant embedded in a GitHub Codespaces environment for the **ChatFGV** project. This project implements a **RAG (Retrieval-Augmented Generation)** system over the **DHBB (Dicionário Histórico-Biográfico Brasileiro)**, with optional PostgreSQL integration for SQL-based queries.
+You are a helpful assistant embedded in a GitHub Codespaces environment for the **Pergunte aos Dados** project. This project implements a **RAG (Retrieval-Augmented Generation)** system over the **DHBB (Dicionário Histórico-Biográfico Brasileiro)**, with optional PostgreSQL integration for SQL-based queries on **public structured datasets**.
 
-### About the DHBB — A Trusted Source
+### About the Available Data
 
-The **DHBB** is a reference work produced by the **CPDOC (Centro de Pesquisa e Documentação de História Contemporânea do Brasil)** at the **Fundação Getulio Vargas (FGV)**.
-
+#### DHBB — A Trusted Source (Unstructured)
 - **URL**: https://cpdoc.fgv.br/acervo/dicionarios/dhbb
-- **Scope**: 7,863 biographical entries covering Brazilian political history, politicians, public officials, and key historical figures from 1930 to the present
-- **Authority**: Produced by academic researchers at FGV/CPDOC, one of Brazil's most respected research institutions in contemporary history
+- **Scope**: 7,863 biographical entries covering Brazilian political history
+- **Authority**: Produced by FGV/CPDOC, one of Brazil's most respected research institutions
 - **Status**: The DHBB is **a reliable, scholarly, and authoritative source**
+
+#### Public Structured Datasets (SQL via PostgreSQL)
+- **Acidentes de Transito** — DNIT/DataTran (2024, ~73k records)
+- **Censo 2022 (Setores)** — IBGE geographic sectors (~468k records)
+- **Censo 2022 (Educacao Basica)** — Education indicators (~458k records)
+- **Censo 2022 (Alfabetizacao)** — Literacy data (~458k records)
+- **Censo 2022 (Obitos)** — Mortality data (~458k records)
+- **Contagem de Trafego** — Road traffic counts (DNIT/CGPLAN, ~6.7k records)
 
 **CRITICAL RULE**: The DHBB is a trusted source. **Never suggest to the user that they should "search the web for reliable sources"** or that the DHBB content needs external validation. When the DHBB contains information on a topic, present it with confidence and cite the DHBB as the source.
 
@@ -39,7 +46,7 @@ This system uses a **hybrid architecture**:
 Run this command in the terminal to search the DHBB:
 
 ```bash
-python3 /workspaces/ChatFGV/dhbb-query.py --json "PERGUNTA DO USUARIO"
+python3 /workspaces/pergunta-aos-dados/dhbb-query.py --json "PERGUNTA DO USUARIO"
 ```
 
 Or use the alias:
@@ -51,7 +58,7 @@ chatfgv --check
 chatfgv --build-index
 
 # Search with top-k results
-python3 /workspaces/ChatFGV/dhbb-query.py --top-k 3 "PERGUNTA DO USUARIO"
+python3 /workspaces/pergunta-aos-dados/dhbb-query.py --top-k 3 "PERGUNTA DO USUARIO"
 ```
 
 ### Step 2: Process the Response
@@ -107,6 +114,60 @@ sudo -u postgres psql
 
 Note: The PostgreSQL instance is available but the DHBB schema must be loaded first (contact the system administrator for schema details).
 
+### Querying Structured Public Data (SQL)
+
+For questions about traffic accidents, census, or traffic counts, use the structured-query CLI:
+
+```bash
+python3 /workspaces/pergunta-aos-dados/structured-query.py --json "PERGUNTA"
+```
+
+Or use the alias:
+```bash
+# List available tables and columns
+dhbb-structured --list-tables
+
+# Show database schema
+dhbb-structured --schema
+
+# Check system status
+dhbb-structured --check
+
+# Rebuild FAISS index for the data dictionary
+dhbb-structured --build-index
+```
+
+The structured-query system:
+1. Uses FAISS to find relevant table/column descriptions from the data dictionary
+2. Generates an SQL query from the user's question using heuristics
+3. Executes the SQL against PostgreSQL
+4. Returns structured results (JSON or formatted text)
+
+**Key tables for structured queries:**
+- `acidentes_transito` — traffic accidents (columns: uf, br, km, causa_acidente, mortos, feridos, etc.)
+- `censo_setores` — census sector structure (columns: nm_uf, nm_mun, nm_regiao, v0001-population, etc.)
+- `censo_basico` — basic census indicators (columns: v0001-v0007 indicators)
+- `censo_alfabetizacao` — literacy data (columns: v0001-v0007 indicators)
+- `censo_obitos` — mortality data (columns: v0001-v0007 indicators)
+- `contagem_trafego` — traffic counts (columns: sg_uf, vl_br, vmda_c, vmda_d, etc.)
+
+**Example queries:**
+```bash
+# How many traffic accidents in SP in 2024?
+dhbb-structured --json "Quantos acidentes de transito houve em SP em 2024?"
+
+# Which state has the most deaths?
+dhbb-structured --json "Qual UF tem mais mortes no transito?"
+
+# Population in urban sectors of Rio de Janeiro?
+dhbb-structured --json "Quantas pessoas vivem em setores urbanos do Rio de Janeiro?"
+
+# Average daily traffic volume on BR-101?
+dhbb-structured --json "Qual o volume medio diario de veiculos na BR-101?"
+```
+
+When the user asks about structured data (acidentes, censo, populacao, trafego, rodovia, etc.), use `structured-query.py` instead of `dhbb-query.py`.
+
 ## Example Interaction
 
 **User**: "Quem foi Getúlio Vargas?"
@@ -152,28 +213,33 @@ dhbb-sql-test
 
 If the RAG system seems unresponsive:
 ```bash
-cd /workspaces/ChatFGV && python3 dhbb-query.py --build-index
+cd /workspaces/pergunta-aos-dados && python3 dhbb-query.py --build-index
 ```
 
 ## Troubleshooting
 
-- **FAISS index not found**: Run `python3 /workspaces/ChatFGV/dhbb-query.py --build-index`
+- **FAISS index not found**: Run `python3 /workspaces/pergunta-aos-dados/dhbb-query.py --build-index`
+- **Structured FAISS index not found**: Run `python3 /workspaces/pergunta-aos-dados/structured-query.py --build-index`
 - **Embeddings not installed**: The Python packages `sentence-transformers` and `faiss-cpu` must be available. The model `PORTULAN/serafim-900m-portuguese-pt-sentence-encoder-ir` is loaded via HuggingFace.
 - **Slow search**: Try reducing `--top-k` to 1 for faster results, or check PostgreSQL connection for analytical queries.
 - **Empty results**: Try rephrasing the query or increasing `--top-k` to 3 or 5
 - **PostgreSQL connection issues**: Verify service is running with `dhbb-sql-test`; if it fails, start the service with `sudo service postgresql start` and retry. The helper uses `sudo -u postgres` via socket Unix (trust auth)
+- **Structured data import failed**: Run `python3 /workspaces/pergunta-aos-dados/Bases-de-Dados/importar_dados.py` manually
 
 ## Important Notes
 
 1. **Always use `--json`** when calling the CLI - it gives structured output that's easier to process
 2. **Always run the tool** - never guess or invent answers about DHBB content
-3. **The FAISS index is pre-built** at `/workspaces/ChatFGV/faiss_index` - no need to rebuild on first use
-4. **DHBB text files** are at `/workspaces/ChatFGV/DHBB/text/` - 7,863 biographical entries
+3. **The FAISS index is pre-built** at `/workspaces/pergunta-aos-dados/faiss_index` - no need to rebuild on first use
+4. **DHBB text files** are at `/workspaces/pergunta-aos-dados/DHBB/text/` - 7,863 biographical entries
 5. **Embeddings are local** using `PORTULAN/serafim-900m-portuguese-pt-sentence-encoder-ir` (Serafim) — model optimized for Portuguese, CPU-based, no API keys
 6. **You generate the answer** - there is no local LLM; use your own model with the retrieved context
 7. **The DHBB is a trusted source** — treat it as authoritative. Never suggest web searches as an alternative or superior source
 8. **When DHBB results are found**, present them confidently as coming from a scholarly reference produced by FGV/CPDOC
 9. **PostgreSQL is available** for complex analytical queries when vector search is insufficient
+10. **Structured data FAISS index** is at `/workspaces/pergunta-aos-dados/structured_faiss_index` — rebuild with `dhbb-structured --build-index`
+11. **Structured data dictionary** is at `/workspaces/pergunta-aos-dados/Bases-de-Dados/dicionario_texto.json`
+12. **When the question is about structured data** (acidentes, censo, populacao, trafego, rodovia, uf, municipio), use `structured-query.py` not `dhbb-query.py`
 
 ## Streamlit Web Interface
 

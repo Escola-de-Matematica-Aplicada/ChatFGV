@@ -15,7 +15,7 @@ Resumo do Progresso — Preparação do .devcontainer com Índice FAISS Pré-con
       🔍 Análise Realizada
 
       1. Estrutura do .devcontainer examinada
-         - devcontainer.json: configura nome, portas (8501, 8888), extensões VSCode, variáveis de ambiente (CHATFGV_INDEX, CHATFGV_DHBB) e
+         - devcontainer.json: configura nome, portas (8501, 8888), extensões VSCode, variáveis de ambiente (PERGUNTE_AOS_DADOS_INDEX, PERGUNTE_AOS_DADOS_DHBB) e
          postCreateCommand que executa setup.sh.
          - Dockerfile: baseado em rocker/r-ver:4.4.2, instala dependências do sistema, Python packages (incluindo faiss-cpu e torch==2.5.1+cpu), e
          copia os arquivos do projeto.
@@ -24,7 +24,7 @@ Resumo do Progresso — Preparação do .devcontainer com Índice FAISS Pré-con
       2. Código de indexação (dhbb-query.py)
          - Usa HuggingFaceEmbeddings com modelo PORTULAN/serafim-900m-portuguese-pt-sentence-encoder-ir
          - Chunking com RecursiveCharacterTextSplitter (2000/100)
-         - Salva índice em /workspaces/ChatFGV/faiss_index com FAISS.from_documents(...).save_local()
+         - Salva índice em /workspaces/pergunta-aos-dados/faiss_index com FAISS.from_documents(...).save_local()
          - Busca via FAISS.load_local() e similarity_search()
 
       3. Dados
@@ -77,8 +77,8 @@ Resumo do Progresso — Preparação do .devcontainer com Índice FAISS Pré-con
       **Windows (PowerShell):**
       ```powershell
       # Ativar variáveis de ambiente
-      $env:CHATFGV_INDEX="C:\caminho\para\faiss_index"
-      $env:CHATFGV_DHBB="C:\caminho\para\DHBB\text"
+      $env:PERGUNTE_AOS_DADOS_INDEX="C:\caminho\para\faiss_index"
+       $env:PERGUNTE_AOS_DADOS_DHBB="C:\caminho\para\DHBB\text"
 
       # Reconstruir o índice
       .venv-index\Scripts\python.exe dhbb-query.py --build-index
@@ -87,8 +87,8 @@ Resumo do Progresso — Preparação do .devcontainer com Índice FAISS Pré-con
       **Linux / macOS (Bash):**
       ```bash
       # Ativar variáveis de ambiente
-      export CHATFGV_INDEX="/caminho/para/faiss_index"
-      export CHATFGV_DHBB="/caminho/para/DHBB/text"
+      export PERGUNTE_AOS_DADOS_INDEX="/caminho/para/faiss_index"
+       export PERGUNTE_AOS_DADOS_DHBB="/caminho/para/DHBB/text"
 
       # Reconstruir o índice
       .venv-index/bin/python dhbb-query.py --build-index

@@ -1,5 +1,5 @@
 {
-  "name": "ChatFGV - RAG + PostgreSQL + Copilot Code (DHBB)",
+  "name": "Pergunte aos Dados - RAG + PostgreSQL + Copilot Code (DHBB)",
   "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
@@ -48,7 +48,7 @@
   "forwardPorts": [8501, 8888],
   "portsAttributes": {
     "8501": {
-      "label": "ChatFGV Streamlit",
+      "label": "Pergunte aos Dados Streamlit",
       "onAutoForward": "notify"
     },
     "8888": {
@@ -59,8 +59,16 @@
   "remoteUser": "vscode",
   "remoteEnv": {
     "R_LIBS_USER": "/home/vscode/R/library",
-    "CHATFGV_INDEX": "/workspaces/ChatFGV/faiss_index",
-    "CHATFGV_DHBB": "/workspaces/ChatFGV/DHBB/text"
+    "PERGUNTE_AOS_DADOS_INDEX": "/workspaces/pergunta-aos-dados/faiss_index",
+    "PERGUNTE_AOS_DADOS_DHBB": "/workspaces/pergunta-aos-dados/DHBB/text",
+    "STRUCTURED_INDEX_PATH": "/workspaces/pergunta-aos-dados/structured_faiss_index",
+    "DICIONARIO_TEXTO_PATH": "/workspaces/pergunta-aos-dados/Bases-de-Dados/dicionario_texto.txt",
+    "DICIONARIO_JSON_PATH": "/workspaces/pergunta-aos-dados/Bases-de-Dados/dicionario_texto.json",
+    "STRUCTURED_DB": "postgres",
+    "STRUCTURED_USER": "postgres",
+    "STRUCTURED_PASSWORD": "postgres",
+    "STRUCTURED_HOST": "localhost",
+    "STRUCTURED_PORT": "5432"
   },
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "hostRequirements": {

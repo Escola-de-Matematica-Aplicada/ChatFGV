@@ -1,2 +1,2 @@
-faiss_index/** filter=lfs diff=lfs merge=lfs -text
-Bases-de-Dados/** filter=lfs diff=lfs merge=lfs -text
+pergunta-aos-dados/faiss_index/** filter=lfs diff=lfs merge=lfs -text
+pergunta-aos-dados/Bases-de-Dados/** filter=lfs diff=lfs merge=lfs -text

@@ -1,6 +1,19 @@
-# Bem-vindo ao ChatFGV
+# Bem-vindo ao Pergunte aos Dados
 
-Este ambiente permite que voce faca perguntas ao **Dicionario Historico-Biografico Brasileiro (DHBB)** da FGV/CPDOC usando inteligencia artificial, sem necessidade de instalacao ou configuracao tecnica.
+Este ambiente permite que voce faca perguntas ao **Dicionario Historico-Biografico Brasileiro (DHBB)** da FGV/CPDOC e a **bases de dados publicas estruturadas** usando inteligencia artificial, sem necessidade de instalacao ou configuracao tecnica.
+
+## Bases Disponiveis
+
+### Nao-estruturadas (RAG com embeddings)
+- **DHBB** — Dicionario Historico-Biografico Brasileiro (7.863 verbetes)
+
+### Estruturadas (SQL via PostgreSQL)
+- **Acidentes de Transito** — Dados do DNIT/DataTran (2024, ~73 mil registros)
+- **Censo 2022 (Setores)** — Estrutura geografica dos setores censitarios do IBGE (~468 mil registros)
+- **Censo 2022 (Educacao Basica)** — Indicadores de educacao por setor (~458 mil registros)
+- **Censo 2022 (Alfabetizacao)** — Dados de alfabetizacao por setor (~458 mil registros)
+- **Censo 2022 (Obitos)** — Dados de obitos por setor (~458 mil registros)
+- **Contagem de Trafego** — Volume de trafego em rodovias federais (DNIT/CGPLAN, Dez/2020, ~6.700 registros)
 
 ## Primeiro Acesso
 
@@ -11,7 +24,7 @@ O script de instalacao faz o seguinte automaticamente:
 1. Instala pacotes necessários para operacionalizar o RAG (leitura de bases de dados não estruturadas)
 2. Instala pacotes necessários para operar com o postgres (leitura de bases de dados estruturadas)
 
-Aguarde ate ver a mensagem **"ChatFGV - Ambiente Pronto!"** no terminal.
+Aguarde ate ver a mensagem **"Pergunte aos Dados - Ambiente Pronto!"** no terminal.
 
 ## Como Usar
 
@@ -29,24 +42,48 @@ Aguarde ate ver a mensagem **"ChatFGV - Ambiente Pronto!"** no terminal.
 Abra um terminal e digite:
 
 ```bash
-  python3 dhbb-query.py "Quem foi Getulio Vargas?"
+  python3 pergunta-aos-dados/dhbb-query.py "Quem foi Getulio Vargas?"
 ```
 
 Isso retorna os documentos relevantes do DHBB. Para saida em JSON (usado pelo Copilot):
 
 ```bash
-  python3 dhbb-query.py --json "Quem foi Getulio Vargas?"
+  python3 pergunta-aos-dados/dhbb-query.py --json "Quem foi Getulio Vargas?"
 ```
 
 Isso e util para verificar o que o sistema esta recuperando do DHBB. Para limitar o numero de resultados:
 ```bash
-  python3 dhbb-query.py --top-k 3 "O que foi a Revolucao de 1930?"
+  python3 pergunta-aos-dados/dhbb-query.py --top-k 3 "O que foi a Revolucao de 1930?"
 ```
 
 Isso é útil para entender o que o sistema esta buscando e como as respostas sao construidas.
 ```bash
-  python3 dhbb-query.py --check
+  python3 pergunta-aos-dados/dhbb-query.py --check
 ```
+
+### Metodo 3: Consultar Dados Estruturados (SQL)
+
+Para perguntas sobre dados estruturados (acidentes, censo, trafego):
+
+```bash
+  python3 pergunta-aos-dados/structured-query.py "Quantos acidentes de transito houve em SP em 2024?"
+  python3 pergunta-aos-dados/structured-query.py --json "Qual UF tem mais mortes no transito?"
+  python3 pergunta-aos-dados/structured-query.py --list-tables
+  python3 pergunta-aos-dados/structured-query.py --schema
+  python3 pergunta-aos-dados/structured-query.py --check
+  python3 pergunta-aos-dados/structured-query.py --build-index
+```
+
+O sistema combina busca semantica no dicionario de dados (FAISS) com consultas SQL (PostgreSQL).
+A resposta final e gerada pelo GitHub Copilot.
+
+### Metodo 4: Copilot Code para Dados Estruturados
+
+No Copilot Code, voce tambem pode perguntar sobre dados estruturados:
+- *"Quantos acidentes de transito houve em SP em 2024?"*
+- *"Qual a regiao com mais mortes no transito?"*
+- *"Quantas pessoas vivem em setores urbanos do Rio de Janeiro?"*
+- *"Qual o volume medio diario de veiculos na BR-101?"*
 
 ## Status do Sistema
 
@@ -91,7 +128,7 @@ Este ambiente utiliza:
 
 **Indice FAISS nao encontrado:**
 ```bash
-cd /workspaces/ChatFGV && python3 dhbb-query.py --build-index
+cd /workspaces/pergunta-aos-dados/ && python3 dhbb-query.py --build-index
 ```
 Alerta: no ambiente do codespaces a reconstrução do índice FAISS não vai funcionar porque não tem GPU.
 
@@ -105,4 +142,4 @@ Verifique se as extensoes `GitHub.copilot` e `GitHub.copilot-chat` estao instala
 
 ---
 
-**Projeto ChatFGV** - Artigo submetido a revista Humanidades Digitais (H2D), Universidade do Minho.
+**Projeto Pergunte aos Dados** - Artigo submetido a revista Humanidades Digitais (H2D), Universidade do Minho.

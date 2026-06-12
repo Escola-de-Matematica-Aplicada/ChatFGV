@@ -32,8 +32,8 @@ import time
 # ============================================================
 # Configuracao via variaveis de ambiente (com padroes)
 # ============================================================
-INDEX_PATH = os.environ.get("CHATFGV_INDEX", "/workspaces/ChatFGV/faiss_index")
-DHBB_PATH = os.environ.get("CHATFGV_DHBB", "/workspaces/ChatFGV/DHBB/text")
+INDEX_PATH = os.environ.get("PERGUNTE_AOS_DADOS_INDEX", "/workspaces/pergunta-aos-dados/faiss_index")
+DHBB_PATH = os.environ.get("PERGUNTE_AOS_DADOS_DHBB", "/workspaces/pergunta-aos-dados/DHBB/text")
 EMBEDDING_MODEL = "PORTULAN/serafim-900m-portuguese-pt-sentence-encoder-ir"
 CHUNK_SIZE = 2000
 CHUNK_OVERLAP = 100
@@ -170,7 +170,7 @@ def search_dhbb(question, top_k=2, json_output=False):
     else:
         lines = [
             "==================================================",
-            f"  ChatFGV - Resultados da busca no DHBB",
+            f"  Pergunte aos Dados - Resultados da busca no DHBB",
             f"  Pergunta: {question}",
             f"  Documentos encontrados: {len(docs)}",
             f"  Tempo de busca: {elapsed}s",
@@ -194,7 +194,7 @@ def search_dhbb(question, top_k=2, json_output=False):
 # ============================================================
 def main():
     parser = argparse.ArgumentParser(
-        description="ChatFGV - Buscar contexto no DHBB via FAISS (sem LLM local)",
+        description="Pergunte aos Dados - Buscar contexto no DHBB via FAISS (sem LLM local)",
         epilog="Exemplo: dhbb-query.py 'Quem foi Getulio Vargas?'"
     )
     parser.add_argument(
