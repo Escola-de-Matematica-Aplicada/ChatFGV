@@ -23,6 +23,20 @@ echo "============================================================"
 echo ""
 
 # ============================================================
+# 0.5. BAIXAR ARQUIVOS LFS (indice FAISS, etc.)
+# ============================================================
+echo "[0.5/4] Baixando arquivos Git LFS..."
+cd /workspaces/ChatFGV
+if git lfs pull 2>&1; then
+  echo "  Arquivos LFS baixados com sucesso!"
+else
+  echo "  AVISO: Falha ao baixar arquivos LFS (pode ser necessario git lfs install)"
+  git lfs install 2>/dev/null
+  git lfs pull 2>&1 || echo "  ERRO: Impossivel baixar arquivos LFS"
+fi
+echo ""
+
+# ============================================================
 # 0. CONFIGURAR POSTGRESQL — helpers usam sudo -u postgres
 # ============================================================
 echo "[0/4] Configurando PostgreSQL para autenticacao via socket Unix..."
