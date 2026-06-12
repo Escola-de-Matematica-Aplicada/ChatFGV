@@ -1,0 +1,10 @@
+services:
+  agents:
+    build:
+      context: .
+    working_dir: /workspaces
+    volumes:
+      - "C:/Users/julio.chaves/PycharmProjects/Escola-de-Matematica-Aplicada/ChatFGV:/workspaces"
+      - "/var/run/docker.sock:/var/run/docker.sock"  # acesso ao Docker da máquina host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
