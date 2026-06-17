@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     procps \
     postgresql \
     postgresql-contrib \
+    sqlite3 \
     && git lfs install \
     && rm -rf /var/lib/apt/lists/*
 
@@ -90,6 +91,11 @@ RUN useradd -m -s /bin/bash vscode && \
     usermod -aG sudo vscode && \
     echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
+# Clone and install MarkItDown
+RUN git clone https://github.com/microsoft/markitdown.git /opt/markitdown && \
+    cd /opt/markitdown && \
+    pip install --break-system-packages -e 'packages/markitdown[all]'
+        
 # ============================================================
 # COPIAR ARQUIVOS DO PROJETO
 # ============================================================
