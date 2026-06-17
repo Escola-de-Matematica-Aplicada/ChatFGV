@@ -6,5 +6,5 @@
   "embedding_model": "PORTULAN/serafim-900m-portuguese-pt-sentence-encoder-ir",
   "streamlit_port": 8501,
   "generation": "GitHub Copilot Chat (sem LLM local)",
-  "setup_completed_at": "2026-05-15T20:42:50Z"
+  "setup_completed_at": "2026-06-16T21:13:45Z"
 }
