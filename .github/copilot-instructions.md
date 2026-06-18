@@ -93,6 +93,10 @@ If you prefer SQL-based queries or need complex analytics:
 ```bash
 dhbb-sql-test
 ```
+In the case of connection issues, start the service:
+```bash
+sudo service postgresql start
+```
 
 **Run SQL queries directly:**
 ```bash
