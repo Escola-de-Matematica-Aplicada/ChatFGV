@@ -64,7 +64,8 @@ LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/public_*.sql.gz 2>/dev/null | head -1)
 if [ -n "$LATEST_BACKUP" ]; then
   echo "  Backup encontrado: $LATEST_BACKUP"
   echo "  Restaurando... (pode levar alguns minutos)"
-  if gunzip -c "$LATEST_BACKUP" | psql -U postgres public 2>&1; then
+  # Run the restore as the 'postgres' system user to avoid peer authentication failures
+  if sudo -u postgres bash -c "gunzip -c '$LATEST_BACKUP' | psql -v ON_ERROR_STOP=1 -d public"; then
     echo "  Banco de dados restaurado com sucesso!"
   else
     echo "  AVISO: Erro durante a restauracao (tabelas podem ja existir)"
