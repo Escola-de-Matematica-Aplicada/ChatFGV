@@ -64,11 +64,23 @@ LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/public_*.sql.gz 2>/dev/null | head -1)
 if [ -n "$LATEST_BACKUP" ]; then
   echo "  Backup encontrado: $LATEST_BACKUP"
   echo "  Restaurando... (pode levar alguns minutos)"
-  # Run the restore as the 'postgres' system user to avoid peer authentication failures
-  if sudo -u postgres bash -c "gunzip -c '$LATEST_BACKUP' | psql -v ON_ERROR_STOP=1 -d public"; then
-    echo "  Banco de dados restaurado com sucesso!"
-  else
-    echo "  AVISO: Erro durante a restauracao (tabelas podem ja existir)"
+  # Ensure the database 'public' exists before attempting restore
+  if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='public'" | grep -q 1; then
+    echo "  Banco 'public' nao existe — criando..."
+    if ! sudo -u postgres createdb public; then
+      echo "  ERRO: falha ao criar banco 'public' — pulando restauracao"
+      echo "  Nenhum backup restaurado."
+      LATEST_BACKUP=""
+    fi
+  fi
+
+  if [ -n "$LATEST_BACKUP" ]; then
+    # Run the restore as the 'postgres' system user to avoid peer authentication failures
+    if sudo -u postgres bash -c "gunzip -c '$LATEST_BACKUP' | psql -v ON_ERROR_STOP=1 -d public"; then
+      echo "  Banco de dados restaurado com sucesso!"
+    else
+      echo "  AVISO: Erro durante a restauracao (tabelas podem ja existir)"
+    fi
   fi
 else
   echo "  Nenhum backup encontrado em $BACKUP_DIR — pulando restauracao"
