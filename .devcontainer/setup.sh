@@ -41,25 +41,37 @@ echo ""
 # ============================================================
 echo "[0/4] Configurando PostgreSQL para autenticacao via socket Unix..."
 
-# Aguardar PostgreSQL estar pronto
-MAX_RETRIES=30
-RETRY_DELAY=2
-echo "  Aguardando PostgreSQL estar pronto..."
-for ((i=1; i<=$MAX_RETRIES; i++)); do
-  if pg_isready -h localhost -p 5432 -U postgres >/dev/null 2>&1; then
-    echo "  PostgreSQL esta pronto!"
-    break
-  fi
-  if [ $i -eq $MAX_RETRIES ]; then
-    echo "  ERRO: Timeout aguardando PostgreSQL"
-    echo "  Tentando iniciar manualmente..."
-    sudo service postgresql start 2>/dev/null || true
-    sleep 5
-  fi
-  sleep $RETRY_DELAY
+# Inicia o serviço do PostgreSQL
+sudo service postgresql start
+
+# Aguarda o banco ficar totalmente online
+until pg_isready -h localhost -U postgres -q; do
+  echo "Aguardando o banco de dados iniciar..."
+  sleep 2
 done
 
 echo "  PostgreSQL pronto — helpers dhbb-sql-query/dhbb-sql-test usam sudo -u postgres"
+echo ""
+
+# ============================================================
+# 0.7. RESTAURAR BANCO DE DADOS PUBLIC
+# ============================================================
+echo "[0.7/4] Restaurando banco de dados 'public' a partir do backup..."
+
+BACKUP_DIR="/workspaces/ChatFGV/Bases-de-Dados/BACKUP"
+LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/public_*.sql.gz 2>/dev/null | head -1)
+
+if [ -n "$LATEST_BACKUP" ]; then
+  echo "  Backup encontrado: $LATEST_BACKUP"
+  echo "  Restaurando... (pode levar alguns minutos)"
+  if gunzip -c "$LATEST_BACKUP" | psql -U postgres public 2>&1; then
+    echo "  Banco de dados restaurado com sucesso!"
+  else
+    echo "  AVISO: Erro durante a restauracao (tabelas podem ja existir)"
+  fi
+else
+  echo "  Nenhum backup encontrado em $BACKUP_DIR — pulando restauracao"
+fi
 echo ""
 
 # ============================================================
