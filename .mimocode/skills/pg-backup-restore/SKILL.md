@@ -30,11 +30,13 @@ mkdir -p /workspaces/ChatFGV/Bases-de-Dados/BACKUP
 
 ```bash
 # Full database backup with timestamp
-sudo -U postgres pg_dump public | gzip > /workspaces/ChatFGV/Bases-de-Dados/BACKUP/public_$(date +%Y%m%d_%H%M%S).sql.gz
+pg_dump -U postgres public | gzip > /workspaces/ChatFGV/Bases-de-Dados/BACKUP/public_$(date +%Y%m%d_%H%M%S).sql.gz
 
 # Single schema backup
-sudo -U postgres pg_dump -n censo public | gzip > /workspaces/ChatFGV/Bases-de-Dados/BACKUP/censo_$(date +%Y%m%d_%H%M%S).sql.gz
+pg_dump -U postgres -n censo public | gzip > /workspaces/ChatFGV/Bases-de-Dados/BACKUP/censo_$(date +%Y%m%d_%H%M%S).sql.gz
 ```
+
+> **Note:** Use `pg_dump -U postgres` (PostgreSQL user flag), NOT `sudo -U postgres` (sudo lists privileges for user, does not run commands).
 
 ### Step 4: Verify backup
 
@@ -47,22 +49,22 @@ ls -lh /workspaces/ChatFGV/Bases-de-Dados/BACKUP/
 
 ```bash
 # Restore from gzip backup
-gunzip -c /workspaces/ChatFGV/Bases-de-Dados/BACKUP/censo_YYYYMMDD_HHMMSS.sql.gz | sudo -U postgres psql public
+gunzip -c /workspaces/ChatFGV/Bases-de-Dados/BACKUP/censo_YYYYMMDD_HHMMSS.sql.gz | psql -U postgres public
 
 # Restore from custom format
-sudo -U postgres pg_restore -d public /workspaces/ChatFGV/Bases-de-Dados/BACKUP/censo_YYYYMMDD_HHMMSS.dump
+pg_restore -U postgres -d public /workspaces/ChatFGV/Bases-de-Dados/BACKUP/censo_YYYYMMDD_HHMMSS.dump
 ```
 
 ## Quick Reference
 
 | Operation | Command |
 |-----------|---------|
-| Backup full DB (gzip) | `pg_dump public \| gzip > backup.sql.gz` |
-| Restore full DB | `gunzip -c backup.sql.gz \| psql public` |
-| Backup schema (gzip) | `pg_dump -n <schema> public \| gzip > backup.sql.gz` |
-| Backup data only | `pg_dump -a -n <schema> public \| gzip > backup.sql.gz` |
-| Backup custom format | `pg_dump -Fc -n <schema> public > backup.dump` |
-| Restore custom format | `pg_restore -d public backup.dump` |
+| Backup full DB (gzip) | `pg_dump -U postgres public \| gzip > backup.sql.gz` |
+| Restore full DB | `gunzip -c backup.sql.gz \| psql -U postgres public` |
+| Backup schema (gzip) | `pg_dump -U postgres -n <schema> public \| gzip > backup.sql.gz` |
+| Backup data only | `pg_dump -U postgres -a -n <schema> public \| gzip > backup.sql.gz` |
+| Backup custom format | `pg_dump -U postgres -Fc -n <schema> public > backup.dump` |
+| Restore custom format | `pg_restore -U postgres -d public backup.dump` |
 | List objects in dump | `pg_restore -l backup.dump` |
 
 ## Notes
