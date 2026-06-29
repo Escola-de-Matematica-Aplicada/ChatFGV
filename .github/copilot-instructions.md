@@ -111,6 +111,7 @@ Using the `contexto` from the JSON response:
 - Formulate a clear answer in **Brazilian Portuguese**
 - Base your answer **primarily on the retrieved DHBB context**
 - **Always cite the DHBB sources** from the `fontes` field
+  - HARD RULE: cite the exact text file names from the DHBB, get it from the FAISS DB
 - Present DHBB-sourced information **with confidence** — it comes from a trusted academic reference
 - If the DHBB does not contain information about the specific query, be honest about it
 - **Do NOT suggest searching the web** or consulting "more reliable sources" — the DHBB is already a reliable source
